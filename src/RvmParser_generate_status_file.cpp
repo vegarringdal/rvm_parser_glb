@@ -40,7 +40,7 @@ void RvmParser::generate_status_file()
     Value warnings(kArrayType);
     for (const auto &warning : p_collected_errors)
     {
-        models.PushBack(Value().SetString(warning.c_str(), warning.length(), allocator), allocator);
+        warnings.PushBack(Value().SetString(warning.c_str(), warning.length(), allocator), allocator);
     }
     document.AddMember("warnings", warnings, allocator);
 

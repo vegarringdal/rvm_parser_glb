@@ -73,8 +73,8 @@ optional arguments:
 * init
   * `cmake -S . -B ./build`
 * for build (wsl/linux)
-  * `cmake --build ./build  --config Debug --target all_build -j 18`
-  * `cmake --build ./build  --config Release --target all_build -j 18`
+  * `cmake --build ./build  --config Debug --target all -j 18`
+  * `cmake --build ./build  --config Release --target all -j 18`
 
 Linux:
 `./build/rvm_parser -i ./samplefilesHuldra/HE-STRU.RVM`
