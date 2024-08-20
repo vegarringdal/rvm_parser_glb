@@ -91,5 +91,11 @@
         "codecvt": "cpp",
         "valarray": "cpp",
         "filesystem": "cpp"
+    },
+    "cmake.debugConfig": {
+        "args": [
+            "-i",
+            "../samplefilesHuldra/HE-STRU.RVM"
+        ]
     }
 }
