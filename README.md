@@ -1,4 +1,4 @@
-# cpp_test
+# Rvm Parser Glb
 
 Takes a RVM file and generates 1 merged glb file (per color).
 
@@ -92,12 +92,13 @@ Linux:
 
 All meshes is merged to 1 mesh per color, 1 file per site.
 
+
+## SomeSiteName.glb
+
 Only 1 scene in each file, and under the scene we have info about draw ranges and id hierarchy.
 
 Draw ranges is useful if you need to set colors/selection using something like threejs batchedmesh, and id hierarchy if you need to show treeview.
 
-
-## xyz.glb
 ```json
 {
   "materials": [
@@ -151,6 +152,9 @@ Draw ranges is useful if you need to set colors/selection using something like t
 
 
 ## status_file.json
+
+Header info from file, site/root names exported and filename of site/rootname. md5 is from that level in rvm file, not glb file. Can be useful to know if content is changed or not.
+
 ```json
 {
   "models": [
