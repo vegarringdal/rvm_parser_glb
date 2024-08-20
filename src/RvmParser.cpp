@@ -248,7 +248,6 @@ int RvmParser::start_reading()
         return 1;
     }
 
-    // TODO: save ?
     HeadBlock headerBlock = parse_head_block();
 
     if (p_index != p_next_chunk)

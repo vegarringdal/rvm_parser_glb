@@ -85,6 +85,13 @@ std::string RvmParser::read_string()
 
     uint32_t s_len = read_uint32_be();
     unsigned l = 4 * s_len;
+
+    // just incase file is really messed up and give us really big number
+    if (p_index + l > p_next_chunk)
+    {
+        return "";
+    }
+
     std::string temp_string;
 
     uint32_t x = 0;
