@@ -1,0 +1,14 @@
+build/
+build-*/
+.vs/
+out/
+xdata/
+
+CMakeSettings.json
+
+*.swp
+*.*~
+~*.*
+
+.vimproject
+.tempdirs

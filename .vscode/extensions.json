@@ -1,0 +1,13 @@
+{
+    "recommendations": [
+        "ms-vscode.cmake-tools",
+        "ms-vscode.cpptools",
+        "ms-vscode.cpptools-extension-pack",
+        "ms-vscode.cpptools-themes",
+        "josetr.cmake-language-support-vscode",
+        "twxs.cmake",
+        "cheshirekow.cmake-format",
+        "go2sh.cmake-integration-vscode",
+        "zchrissirhcz.cmake-highlight"
+    ]
+}

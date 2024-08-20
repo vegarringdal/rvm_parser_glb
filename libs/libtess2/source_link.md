@@ -1,0 +1,1 @@
+https://github.com/memononen/libtess2/tree/fc52516467dfa124bdd967c15c7cf9faf02a34ca
