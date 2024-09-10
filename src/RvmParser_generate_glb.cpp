@@ -413,6 +413,7 @@ std::string RvmParser::generate_glb_from_current_root(std::vector<uint32_t> &col
         m.materials.push_back(mat);
         m.meshes.push_back(mesh);
         m.nodes.push_back(node);
+        scene.nodes.push_back(node_count);
 
         m.bufferViews.push_back(bufferView1);
         m.bufferViews.push_back(bufferView2);
@@ -491,7 +492,7 @@ std::string RvmParser::generate_glb_from_current_root(std::vector<uint32_t> &col
 
     meta["id_hierarchy"] = tinygltf::Value(record);
     scene.extras = tinygltf::Value(meta);
-    scene.nodes.push_back(0);
+    
     m.scenes.push_back(scene);
 
     // --------------------------------------------------------
