@@ -358,6 +358,7 @@ std::string RvmParser::generate_glb_from_current_root(std::vector<uint32_t> &col
         if (base_color[3] != 1)
         {
             mat.alphaMode = "BLEND";
+            base_color[3] = 1.0 - base_color[3];
         }
 
         mat.pbrMetallicRoughness.baseColorFactor = base_color;
