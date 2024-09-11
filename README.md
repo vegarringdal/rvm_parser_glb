@@ -70,6 +70,7 @@ optional arguments:
 * `apt update`
 * `apt upgrade`
 * `apt install -y build-essential`
+* `apt install cmake`
 * init
   * `cmake -S . -B ./build`
 * for build (wsl/linux)
