@@ -45,7 +45,7 @@ optional arguments:
 # Visual Studio Code
 * install [vscode 64](https://code.visualstudio.com/)
 * install [cmake 64][https://cmake.org/download/]
-* install [MinGw-64](https://www.msys2.org/) under `C:\msys64msys64`
+* install [MinGw-64](https://www.msys2.org/) under `C:\msys64`
   * Follow: https://code.visualstudio.com/docs/cpp/config-mingw
   * in mingGW terminal
     * `pacman -S --needed base-devel mingw-w64-ucrt-x86_64-toolchain`
