@@ -37,5 +37,5 @@ target_link_libraries(rvm_parser
     libtess2 
     MESHOPT
     Argumentum::headers
-    -static-libgcc
-    -static-libstdc++)
+    -static
+    )
