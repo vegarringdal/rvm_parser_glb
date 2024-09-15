@@ -28,6 +28,7 @@ struct MetaNode
     uint32_t start;
     uint32_t count;
     uint8_t opacity;
+    uint8_t version;
     uint32_t color_with_alpha;
     std::vector<NodePrim> primitives;
 };

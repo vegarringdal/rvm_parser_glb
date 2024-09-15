@@ -305,6 +305,20 @@ int RvmParser::start_reading()
 
             CntbBlock cntb = parse_cntb_block();
 
+
+            // quickfix for cntb version 4 offset i dont know what is..
+            if(cntb.version == 4)
+            {
+                if (p_index_total < p_next_chunk){
+                    std::cout << "fixing, Expected:" << p_next_chunk << " at:" << p_index_total << std::endl;
+                    std::cout << cntb.name << std::endl;
+                    while(p_next_chunk != p_index_total){
+                        read_uint8();
+                    }
+                }
+            }
+            
+
             if (p_index_total != p_next_chunk)
             {
                 p_collected_errors.push_back("Uexpected chunk found on CNTB, at root:" + current_root_name);
@@ -357,6 +371,7 @@ int RvmParser::start_reading()
             p_node.name = cntb.name;
             p_node.start = 0;
             p_node.count = 0;
+            p_node.version = cntb.version;
             p_node.color_with_alpha = 0;
             p_node.opacity = cntb.opacity; // might be changed
             p_node.material_id = cntb.material;
@@ -486,6 +501,18 @@ int RvmParser::start_reading()
 
             parse_prim_block(chunk_id(chunk_name));
 
+            // quickfix for cntb version 4 offset i dont know what is..
+            if(p_node.version == 4)
+            {
+                if (p_index_total < p_next_chunk){
+                    std::cout << "fixing, Expected:" << p_next_chunk << " at:" << p_index_total << std::endl;
+                    while(p_next_chunk != p_index_total){
+                        read_uint8();
+                    }
+                }
+            }
+
+            // if we cant fix its a error..
             if (p_index_total != p_next_chunk)
             {
                 p_collected_errors.push_back("Uexpected chunk found on PRIM/OBST/INSU: " + current_root_name);
@@ -497,7 +524,7 @@ int RvmParser::start_reading()
             break;
 
         default:
-            p_collected_errors.push_back("unknown chuck found" + current_root_name);
+            p_collected_errors.push_back("unknown element found" + current_root_name);
             std::cout << "unknown chuck found" << chunk_name << std::endl;
             return 3;
         }
