@@ -203,7 +203,7 @@ CntbBlock RvmParser::parse_cntb_block()
     // if version > 2 then this has opacity ?
     if (block.version > 2)
     {
-        assert(1 == 2); // so I will do something about it
+        // todo, need to improve this part, pass it to children...hint to my self, check DWE - LQ
         block.opacity = read_uint8();
         read_uint8();
         read_uint8();
