@@ -9,10 +9,11 @@ Needed merging of gltf/reading chucks/parts to keep memory usage low in ACI. Als
 PS! Doing this while I try and learn a little cpp, so it will have some weird parts.
 
 ```cli
-usage: ./rvm_parser.exe --input INPUT [--output OUTPUT]
-[--level LEVEL] [--remove-empty REMOVE-EMPTY] [--cleanup-position
-CLEANUP-POSITION] [--cleanup-precision CLEANUP-PRECISION] [--tolerance
-TOLERANCE] [--help]
+usage: C:\AibelProgs\github\rvm_parser_glb\build\rvm_parser.exe --input INPUT   
+[--output OUTPUT] [--level LEVEL] [--remove-empty REMOVE-EMPTY]
+[--cleanup-position CLEANUP-POSITION] [--cleanup-precision CLEANUP-PRECISION]   
+[--meshopt-threshold MESHOPT-THRESHOLD] [--meshopt-target-error
+MESHOPT-TARGET-ERROR] [--tolerance TOLERANCE] [--help]
 
 Rvm To Merged GLB (1 mesh per color)
 
@@ -20,21 +21,28 @@ required arguments:
   -i, --input INPUT           rvm fileinput --input ./somefile.rvm
 
 optional arguments:
-  -o, --output OUTPUT         Output folder, will create folder if it does not
+  -o, --output OUTPUT         Output folder, will create folder if it does not  
                               exist. Default is ./exports/
-  -l, --level LEVEL           Level to split into files. Default is 0 (site)
+  -l, --level LEVEL           Level to split into files. Default is 0 (site)    
   -r, --remove-empty REMOVE-EMPTY
-                              Removes elements without primitives. This is
+                              Removes elements without primitives. This is      
                               enabled by default. To disable use -r 0
   -d, --cleanup-position CLEANUP-POSITION
-                              Removes duplicate positions. This is enabled by
-                              default. If you want to calculate vertex normals
+                              Removes duplicate positions. This is enabled by   
+                              default. If you want to calculate vertex normals  
                               later, then you want this set to 0, to disable use
                               -d 0
   -p, --cleanup-precision CLEANUP-PRECISION
-                              Precision to use when cleaning up duplicate
-                              positions, default is 3
-  -t, --tolerance TOLERANCE   Tolerance to be used in triangulation, default is
+                              Precision to use when cleaning up duplicate       
+                              positions, this also runs meshopt on mesh, default
+                              is 3
+  -m, --meshopt-threshold MESHOPT-THRESHOLD
+                              meshopt threshold, default is 0.70f, only used    
+                              when cleanup-position is active
+  -e, --meshopt-target-error MESHOPT-TARGET-ERROR
+                              meshopt target_error, default is 0.f, only used   
+                              when cleanup-position is active
+  -t, --tolerance TOLERANCE   Tolerance to be used in triangulation, default is 
                               0.01
   -h, --help                  Display this help message and exit.
 
