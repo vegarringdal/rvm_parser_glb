@@ -9,6 +9,9 @@ int main(int argc, char **argv)
     uint8_t export_level;
     uint8_t remove_duplicate_positions_precision;
     float tolerance;
+    float meshopt_threshold;
+    float meshopt_error;
+    float meshopt_target_error;
     bool remove_elements_without_primitives;
     bool remove_duplicate_positions;
 
@@ -44,7 +47,18 @@ int main(int argc, char **argv)
     params.add_parameter(remove_duplicate_positions_precision, "--cleanup-precision", "-p")
         .nargs(1)
         .absent(3)
-        .help("Precision to use when cleaning up duplicate positions, default is 3");
+        .help("Precision to use when cleaning up duplicate positions, this also runs meshopt on mesh, default is 3");
+
+    params.add_parameter(meshopt_threshold, "--meshopt-threshold", "-m")
+        .nargs(1)
+        .absent(0.75f)
+        .help("meshopt threshold, default is 0.75f, only used when cleanup-position is active");
+    
+    params.add_parameter(meshopt_target_error, "--meshopt-target-error", "-e")
+        .nargs(1)
+        .absent(0.f)
+        .help("meshopt target_error, default is 0.f, only used when cleanup-position is active");
+
 
     params.add_parameter(tolerance, "--tolerance", "-t")
         .nargs(1)
@@ -58,5 +72,15 @@ int main(int argc, char **argv)
     }
 
     RvmParser rvmParser;
-    return rvmParser.read_file(filename_including_path, output_path, export_level, remove_elements_without_primitives, remove_duplicate_positions, remove_duplicate_positions_precision, tolerance);
+    return rvmParser.read_file(
+        filename_including_path, 
+        output_path, 
+        export_level, 
+        remove_elements_without_primitives, 
+        remove_duplicate_positions, 
+        remove_duplicate_positions_precision, 
+        tolerance,
+        meshopt_threshold,
+        meshopt_target_error
+    );
 }

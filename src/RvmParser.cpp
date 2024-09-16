@@ -52,7 +52,9 @@ int RvmParser::read_file(
     bool remove_elements_without_primitives,
     bool remove_duplicate_positions,
     uint8_t remove_duplicate_positions_precision,
-    float tolerance)
+    float tolerance,
+    float meshopt_threshold,
+    float meshopt_target_error)
 {
     p_export_level = export_level;
     p_remove_elements_without_primitives = remove_elements_without_primitives;
@@ -60,6 +62,8 @@ int RvmParser::read_file(
     p_remove_duplicate_positions_precision = remove_duplicate_positions_precision;
     p_output_path = output_path;
     p_tolerance = tolerance;
+    p_meshopt_threshold = meshopt_threshold;
+    p_meshopt_target_error = meshopt_target_error;
 
     auto start = std::chrono::high_resolution_clock::now();
 

@@ -346,9 +346,9 @@ std::string RvmParser::generate_glb_from_current_root(std::vector<uint32_t> &col
                     }
                 }
 
-                float threshold = 0.75f;
+                float threshold = p_meshopt_threshold;
                 size_t target_index_count = size_t(temp_indecies.size() * threshold);
-                float target_error = 0.f;
+                float target_error = p_meshopt_target_error;
                 float lod_error = 0.f;
                 std::vector<unsigned int> lod(temp_indecies.size());
 
@@ -362,7 +362,7 @@ std::string RvmParser::generate_glb_from_current_root(std::vector<uint32_t> &col
                         12, 
                         target_index_count, 
                         target_error, 
-                        meshopt_SimplifyLockBorder,// meshopt_SimplifyErrorAbsolute, 
+                        meshopt_SimplifyLockBorder,//(1) meshopt_SimplifyErrorAbsolute,  (4)
                         &lod_error
                     )
                 );
@@ -400,31 +400,6 @@ std::string RvmParser::generate_glb_from_current_root(std::vector<uint32_t> &col
 
             }
 
-            /* for (auto i = 0; i < triangle_size; i++)
-            {
-                auto x = indicies[i] * 3;
-
-                auto x1 = positions[x];
-                auto x2 = positions[x + 1];
-                auto x3 = positions[x + 2];
-
-                std::string position_id = generate_position_id(x1, x2, x3, p_remove_duplicate_positions_precision);
-
-                auto search = position_index_map.find(position_id);
-                if (search != position_index_map.end())
-                {
-                    new_indecies.push_back(search->second);
-                }
-                else
-                {
-                    new_indecies.push_back(index_counter);
-                    position_index_map.insert_or_assign(position_id, index_counter);
-                    index_counter = index_counter + 1;
-                    new_positions.push_back(x1);
-                    new_positions.push_back(x2);
-                    new_positions.push_back(x3);
-                }
-            } */
         }
         else
         {

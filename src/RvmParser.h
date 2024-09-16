@@ -112,7 +112,9 @@ public:
         bool remove_elements_without_primitives,
         bool remove_duplicate_positions,
         uint8_t remove_duplicate_positions_precision,
-        float tolerance);
+        float tolerance,
+        float meshopt_threshold,
+        float meshopt_target_error);
 
 private:
     std::ifstream file_stream;
@@ -130,6 +132,8 @@ private:
     uint8_t p_remove_duplicate_positions_precision = 3;
     std::string p_output_path = "";
     float p_tolerance = 0.01;
+    float p_meshopt_threshold = 0.f;
+    float p_meshopt_target_error = 0.f;
 
     // vars for loopin buffer
     uint32_t p_index = 0;
