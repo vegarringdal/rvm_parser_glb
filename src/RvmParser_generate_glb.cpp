@@ -3,6 +3,7 @@
 #include <fstream>
 #include "RvmParser.h"
 #include <iostream>
+#include "meshoptimizer-0.21/src/meshoptimizer.h"
 
 #define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION       // todo,  move, prob should not be loaded more than 1 time ?
@@ -302,7 +303,104 @@ std::string RvmParser::generate_glb_from_current_root(std::vector<uint32_t> &col
         if (p_remove_duplicate_positions)
         {
 
-            for (auto i = 0; i < triangle_size; i++)
+            for (auto &pair : p_nodes)
+            {
+
+                uint32_t id = pair.first;
+                MetaNode &node = pair.second;
+
+                if (color != node.color_with_alpha || node.primitives.size() == 0)
+                {
+                    continue;
+                }
+
+
+                std::unordered_map<std::string, uint32_t> tmp_position_index_map;
+                std::vector<uint32_t> temp_indecies;
+                std::vector<float> temp_positions;
+                uint32_t temp_index_counter = 0;
+
+                for (auto i = node.start; i < node.start + node.count; i++)
+                {
+                    auto x = indicies[i] * 3;
+
+                    // this just need to be unique
+                    auto x1 = positions[x];
+                    auto x2 = positions[x + 1];
+                    auto x3 = positions[x + 2];
+                    std::string position_id = generate_position_id(x1, x2, x3, p_remove_duplicate_positions_precision);
+
+                    auto search = tmp_position_index_map.find(position_id);
+                    if (search != tmp_position_index_map.end())
+                    {
+                        temp_indecies.push_back(search->second);
+                    }
+                    else
+                    {
+                        temp_indecies.push_back(temp_index_counter);
+                        tmp_position_index_map[position_id] = temp_index_counter;
+                        temp_index_counter++;
+                        temp_positions.push_back(positions[x]);
+                        temp_positions.push_back(positions[x + 1]);
+                        temp_positions.push_back(positions[x + 2]);
+                    }
+                }
+
+                float threshold = 0.75f;
+                size_t target_index_count = size_t(temp_indecies.size() * threshold);
+                float target_error = 0.f;
+                float lod_error = 0.f;
+                std::vector<unsigned int> lod(temp_indecies.size());
+
+                lod.resize(
+                    meshopt_simplify(
+                        &lod[0], 
+                        &temp_indecies[0], 
+                        temp_indecies.size(), 
+                        &temp_positions[0], 
+                        temp_positions.size() / 3, 
+                        12, 
+                        target_index_count, 
+                        target_error, 
+                        meshopt_SimplifyLockBorder,// meshopt_SimplifyErrorAbsolute, 
+                        &lod_error
+                    )
+                );
+
+
+                node.start = static_cast<uint32_t>(new_indecies.size());
+
+                for( auto i = 0; i < lod.size(); i++)
+                {
+                    auto x = lod[i] * 3;
+                    auto x1 = temp_positions[x];
+                    auto x2 = temp_positions[x + 1];
+                    auto x3 = temp_positions[x + 2];
+                    std::string position_id = generate_position_id(x1, x2, x3, p_remove_duplicate_positions_precision);
+
+                    auto search = position_index_map.find(position_id);
+                    if (search != position_index_map.end())
+                    {
+                        new_indecies.push_back(search->second);
+                    }
+                    else
+                    {
+                        new_indecies.push_back(index_counter);
+                        position_index_map[position_id] = index_counter;
+                        index_counter++;
+                        new_positions.push_back(temp_positions[x]);
+                        new_positions.push_back(temp_positions[x + 1]);
+                        new_positions.push_back(temp_positions[x + 2]);
+                    }
+                }
+
+                node.count = static_cast<uint32_t>(new_indecies.size()) - node.start;
+
+               
+
+            }
+
+            /* for (auto i = 0; i < triangle_size; i++)
             {
                 auto x = indicies[i] * 3;
 
@@ -326,7 +424,7 @@ std::string RvmParser::generate_glb_from_current_root(std::vector<uint32_t> &col
                     new_positions.push_back(x2);
                     new_positions.push_back(x3);
                 }
-            }
+            } */
         }
         else
         {
@@ -335,6 +433,9 @@ std::string RvmParser::generate_glb_from_current_root(std::vector<uint32_t> &col
             new_indecies.insert(new_indecies.end(), indicies, indicies + indices_size / 4);
             new_positions.insert(new_positions.end(), positions, positions + positions_size / 4);
         }
+
+        free(indicies);
+        free(positions);
 
         // --------------------------------------------------------
         // init tinyglft we need to support indecies and positions
@@ -426,8 +527,7 @@ std::string RvmParser::generate_glb_from_current_root(std::vector<uint32_t> &col
         buffer.data.insert(buffer.data.end(), reinterpret_cast<char *>(new_indecies.data()), reinterpret_cast<char *>(new_indecies.data()) + (new_indecies.size() * sizeof(uint32_t)));
         buffer.data.insert(buffer.data.end(), reinterpret_cast<char *>(new_positions.data()), reinterpret_cast<char *>(new_positions.data()) + new_positions.size() * sizeof(float));
 
-        free(indicies);
-        free(positions);
+   
 
         // --------------------------------------------------------
         // next part collects and add draw_ranges for this node
@@ -493,7 +593,7 @@ std::string RvmParser::generate_glb_from_current_root(std::vector<uint32_t> &col
 
     meta["id_hierarchy"] = tinygltf::Value(record);
     scene.extras = tinygltf::Value(meta);
-    
+
     m.scenes.push_back(scene);
 
     // --------------------------------------------------------
