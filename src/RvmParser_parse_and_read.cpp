@@ -22,14 +22,8 @@ uint8_t RvmParser::read_uint8()
 
     uint32_t index = p_index;
     p_index += 1;
-    if (p_index_total == 4294967295)
-    {
-        p_index_total = 0;
-    }
-    else
-    {
-        p_index_total += 1;
-    }
+    p_index_total += 1;
+
 
     // get byte before we might replace buffer
     uint8_t b = p_buffer[index];
@@ -87,10 +81,11 @@ std::string RvmParser::read_string()
     unsigned l = 4 * s_len;
 
     // just incase file is really messed up and give us really big number
-    if (p_index + l > p_next_chunk)
+    /* if (p_index + l > p_next_chunk)
     {
+        
         return "";
-    }
+    } */
 
     std::string temp_string;
 

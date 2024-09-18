@@ -258,7 +258,7 @@ int RvmParser::start_reading()
     {
         p_collected_errors.push_back("Uexpected chunk found on HEAD");
         std::cout << "Uexpected chunk found on HEAD" << std::endl;
-        std::cout << "Expected:" << p_next_chunk << " at:" << p_index_total << std::endl;
+        std::cout << "Expected:" << p_next_chunk << " at:" << static_cast<uint32_t>(p_index_total) << std::endl;
         return 2;
     }
 
@@ -283,7 +283,7 @@ int RvmParser::start_reading()
     {
         p_collected_errors.push_back("Uexpected chunk found on MODL");
         std::cout << "Uexpected chunk found on MODL" << std::endl;
-        std::cout << "Expected:" << p_next_chunk << " at:" << p_index_total << std::endl;
+        std::cout << "Expected:" << p_next_chunk << " at:" << static_cast<uint32_t>(p_index_total) << std::endl;
         return 2;
     }
 
@@ -309,25 +309,25 @@ int RvmParser::start_reading()
 
             CntbBlock cntb = parse_cntb_block();
 
-
             // quickfix for cntb version 4 offset i dont know what is..
-            if(cntb.version == 4)
+            if (cntb.version == 4)
             {
-                if (p_index_total < p_next_chunk){
-                    std::cout << "fixing, Expected:" << p_next_chunk << " at:" << p_index_total << std::endl;
+                if (static_cast<uint32_t>(p_index_total) < p_next_chunk)
+                {
+                    std::cout << "fixing, Expected:" << p_next_chunk << " at:" << static_cast<uint32_t>(p_index_total) << std::endl;
                     std::cout << cntb.name << std::endl;
-                    while(p_next_chunk != p_index_total){
+                    while (p_next_chunk != static_cast<uint32_t>(p_index_total))
+                    {
                         read_uint8();
                     }
                 }
             }
-            
 
-            if (p_index_total != p_next_chunk)
+            if (static_cast<uint32_t>(p_index_total) != p_next_chunk)
             {
                 p_collected_errors.push_back("Uexpected chunk found on CNTB, at root:" + current_root_name);
                 std::cout << "Uexpected chunk found on CNTB" << current_root_name << std::endl;
-                std::cout << "Expected:" << p_next_chunk << " at:" << p_index_total << std::endl;
+                std::cout << "Expected:" << p_next_chunk << " at:" << static_cast<uint32_t>(p_index_total) << std::endl;
                 return 2;
             }
 
@@ -394,12 +394,12 @@ int RvmParser::start_reading()
         {
             ColrBlock colrBlock = parse_colr_block();
 
-            if (p_index_total != p_next_chunk)
+            if (static_cast<uint32_t>(p_index_total) != p_next_chunk)
             {
                 p_collected_errors.push_back("Uexpected chunk found on COLR");
                 // in theory this could be the last element, so we could allow it...
                 std::cout << "Uexpected chunk found on COLR" << current_root_name << std::endl;
-                std::cout << "Expected:" << p_next_chunk << " at:" << p_index_total << std::endl;
+                std::cout << "Expected:" << p_next_chunk << " at:" << static_cast<uint32_t>(p_index_total) << std::endl;
                 return 2;
             }
 
@@ -413,11 +413,11 @@ int RvmParser::start_reading()
         {
 
             read_uint32_be();
-            if (p_index_total != p_next_chunk)
+            if (static_cast<uint32_t>(p_index_total) != p_next_chunk)
             {
                 p_collected_errors.push_back("Uexpected chunk found on END:");
                 std::cout << "Uexpected chunk found on END:" << current_root_name << std::endl;
-                std::cout << "Expected:" << p_next_chunk << " at:" << p_index_total << std::endl;
+                std::cout << "Expected:" << p_next_chunk << " at:" << static_cast<uint32_t>(p_index_total) << std::endl;
                 return 2;
             }
 
@@ -433,11 +433,11 @@ int RvmParser::start_reading()
             // skip version
             read_uint32_be();
 
-            if (p_index_total != p_next_chunk)
+            if (static_cast<uint32_t>(p_index_total) != p_next_chunk)
             {
                 p_collected_errors.push_back("Uexpected chunk found on CNTE");
                 std::cout << "Uexpected chunk found on CNTE" << current_root_name << std::endl;
-                std::cout << "Expected:" << p_next_chunk << " at:" << p_index_total << std::endl;
+                std::cout << "Expected:" << p_next_chunk << " at:" << static_cast<uint32_t>(p_index_total) << std::endl;
                 return 2;
             }
 
@@ -506,29 +506,31 @@ int RvmParser::start_reading()
             parse_prim_block(chunk_id(chunk_name));
 
             // quickfix for cntb version 4 offset i dont know what is..
-            if(p_node.version == 4)
+            if (p_node.version == 4)
             {
-                if (p_index_total < p_next_chunk){
-                    std::cout << "fixing, Expected:" << p_next_chunk << " at:" << p_index_total << std::endl;
-                    while(p_next_chunk != p_index_total){
+                if (static_cast<uint32_t>(p_index_total) < p_next_chunk)
+                {
+                    std::cout << "fixing, Expected:" << p_next_chunk << " at:" << static_cast<uint32_t>(p_index_total) << std::endl;
+                    while (p_next_chunk != static_cast<uint32_t>(p_index_total))
+                    {
                         read_uint8();
                     }
                 }
             }
 
             // if we cant fix its a error..
-            if (p_index_total != p_next_chunk)
+            if (static_cast<uint32_t>(p_index_total) != p_next_chunk)
             {
                 p_collected_errors.push_back("Uexpected chunk found on PRIM/OBST/INSU: " + current_root_name);
                 std::cout << "Uexpected chunk found on PRIM/OBST/INSU:" << current_root_name << std::endl;
-                std::cout << "Expected:" << p_next_chunk << " at:" << p_index_total << std::endl;
+                std::cout << "Expected:" << p_next_chunk << " at:" << static_cast<uint32_t>(p_index_total) << std::endl;
                 return 2;
             }
 
             break;
 
         default:
-            p_collected_errors.push_back("unknown element found" + current_root_name);
+            p_collected_errors.push_back("unknown element found:" + chunk_name[0] + chunk_name[1] + chunk_name[2] + chunk_name[3] + chunk_name[4] );
             std::cout << "unknown chuck found" << chunk_name << std::endl;
             return 3;
         }
