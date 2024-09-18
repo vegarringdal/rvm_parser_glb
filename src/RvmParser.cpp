@@ -67,14 +67,97 @@ int RvmParser::read_file(
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    file_stream.open(filename, std::ios_base::binary);
-
     p_buffer_total_length = get_file_size(filename);
     if (p_buffer_total_length == 0)
     {
         std::cout << "file not found or size is 0" << std::endl;
         return 1;
     }
+
+    {
+        // quickfix to get all color blocks/update color map
+        file_stream_color_search.open(filename, std::ios_base::binary);
+
+        //last 10 MB
+        auto temp_buffer_size = 10 * 1024 * 1024;
+        if (p_buffer_total_length < temp_buffer_size)
+        {
+            temp_buffer_size = p_buffer_total_length;
+        }
+        auto temp_buffer = new uint8_t[temp_buffer_size];
+
+        std::streamsize read_size = static_cast<int>(p_buffer_total_length) - temp_buffer_size;
+        file_stream_color_search.seekg(read_size, std::ios::beg);
+        file_stream_color_search.read(reinterpret_cast<char *>(temp_buffer), temp_buffer_size);
+        p_buffer_input_length = file_stream_color_search.gcount();
+
+        for (int i = 0; i <= temp_buffer_size - 31; ++i)
+        {
+
+            // COLR
+            uint8_t c = temp_buffer[i];
+            uint8_t o = temp_buffer[i + 4];
+            uint8_t l = temp_buffer[i + 8];
+            uint8_t r = temp_buffer[i + 12];
+
+            // 0001
+            uint8_t n1 = temp_buffer[i + 17];
+            uint8_t n2 = temp_buffer[i + 18];
+            uint8_t n3 = temp_buffer[i + 19];
+            uint8_t n4 = temp_buffer[i + 20];
+
+            if (c != 67 ||
+                o != 79 ||
+                l != 76 ||
+                r != 82 ||
+                n1 != 0 ||
+                n2 != 0 ||
+                n3 != 0 ||
+                n4 != 1)
+            {
+                continue;
+            }
+
+            union UintConverter
+            {
+                uint32_t u32;
+                uint8_t b[sizeof(uint32_t)];
+            } version;
+
+            union UintConverter2
+            {
+                uint32_t u32;
+                uint8_t b[sizeof(uint32_t)];
+            } index;
+
+            // version
+            version.b[3] = temp_buffer[i + 21];
+            version.b[2] = temp_buffer[i + 22];
+            version.b[1] = temp_buffer[i + 23];
+            version.b[0] = temp_buffer[i + 24];
+
+            // index
+            index.b[3] = temp_buffer[i + 25];
+            index.b[2] = temp_buffer[i + 26];
+            index.b[1] = temp_buffer[i + 27];
+            index.b[0] = temp_buffer[i + 28];
+
+            // rgb
+            uint8_t cr = temp_buffer[i + 29];
+            uint8_t cg = temp_buffer[i + 30];
+            uint8_t cb = temp_buffer[i + 31];
+
+            p_color_store.p_id_hex[index.u32] = (cr << 16) | (cg << 8) | cb;
+
+            std::cout << "Found color index: " << index.u32 << " \tR: " << +cr << " \tG:" << +cg << " \tB:" << +cb << std::endl;
+        }
+
+        file_stream_color_search.close();
+    }
+
+    file_stream.open(filename, std::ios_base::binary);
+
+    // return p_buffer_input_length;
 
     std::cout << "File found, starting to read" << std::endl;
 
@@ -403,7 +486,7 @@ int RvmParser::start_reading()
                 return 2;
             }
 
-            std::cout << "Using default colors, not support for COLR block" << std::endl;
+            std::cout << "ColorBlock found, skipping" << std::endl;
         }
         break;
         ////////////////////////
@@ -530,7 +613,7 @@ int RvmParser::start_reading()
             break;
 
         default:
-            p_collected_errors.push_back("unknown element found:" + chunk_name[0] + chunk_name[1] + chunk_name[2] + chunk_name[3] + chunk_name[4] );
+            p_collected_errors.push_back("unknown element found:" + chunk_name[0] + chunk_name[1] + chunk_name[2] + chunk_name[3] + chunk_name[4]);
             std::cout << "unknown chuck found" << chunk_name << std::endl;
             return 3;
         }
