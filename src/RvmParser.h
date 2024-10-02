@@ -117,6 +117,7 @@ public:
         float meshopt_target_error);
 
 private:
+    std::ifstream file_stream_color_search;
     std::ifstream file_stream;
     uint32_t p_index_total = 0;
     uint32_t p_next_chunk = 0;
