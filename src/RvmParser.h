@@ -114,7 +114,8 @@ public:
         uint8_t remove_duplicate_positions_precision,
         float tolerance,
         float meshopt_threshold,
-        float meshopt_target_error);
+        float meshopt_target_error,
+        bool is_dry_run);
 
 private:
     std::ifstream file_stream_color_search;
@@ -135,6 +136,7 @@ private:
     float p_tolerance = 0.01;
     float p_meshopt_threshold = 0.f;
     float p_meshopt_target_error = 0.f;
+    bool p_is_dry_run = false;
 
     // vars for loopin buffer
     uint32_t p_index = 0;

@@ -90,7 +90,8 @@
         "forward_list": "cpp",
         "codecvt": "cpp",
         "valarray": "cpp",
-        "filesystem": "cpp"
+        "filesystem": "cpp",
+        "text_encoding": "cpp"
     },
     "cmake.debugConfig": {
         "args": [

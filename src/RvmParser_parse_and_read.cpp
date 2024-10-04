@@ -410,7 +410,7 @@ void RvmParser::parse_prim_block(uint32_t chunk_name_id)
         tri->color = p_node.material_id;
         a->clear();
 
-        if (tri->vertices_n > 0)
+        if (tri->vertices_n > 0 && p_is_dry_run == false)
         {
             tri->arena = arenaTriangulation;
 
