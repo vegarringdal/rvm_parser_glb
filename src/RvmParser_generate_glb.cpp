@@ -314,7 +314,6 @@ std::string RvmParser::generate_glb_from_current_root(std::vector<uint32_t> &col
                     continue;
                 }
 
-
                 std::unordered_map<std::string, uint32_t> tmp_position_index_map;
                 std::vector<uint32_t> temp_indecies;
                 std::vector<float> temp_positions;
@@ -354,23 +353,20 @@ std::string RvmParser::generate_glb_from_current_root(std::vector<uint32_t> &col
 
                 lod.resize(
                     meshopt_simplify(
-                        &lod[0], 
-                        &temp_indecies[0], 
-                        temp_indecies.size(), 
-                        &temp_positions[0], 
-                        temp_positions.size() / 3, 
-                        12, 
-                        target_index_count, 
-                        target_error, 
-                        meshopt_SimplifyLockBorder,//(1) meshopt_SimplifyErrorAbsolute,  (4)
-                        &lod_error
-                    )
-                );
-
+                        &lod[0],
+                        &temp_indecies[0],
+                        temp_indecies.size(),
+                        &temp_positions[0],
+                        temp_positions.size() / 3,
+                        12,
+                        target_index_count,
+                        target_error,
+                        meshopt_SimplifyLockBorder, //(1) meshopt_SimplifyErrorAbsolute,  (4)
+                        &lod_error));
 
                 node.start = static_cast<uint32_t>(new_indecies.size());
 
-                for( auto i = 0; i < lod.size(); i++)
+                for (auto i = 0; i < lod.size(); i++)
                 {
                     auto x = lod[i] * 3;
                     auto x1 = temp_positions[x];
@@ -395,11 +391,7 @@ std::string RvmParser::generate_glb_from_current_root(std::vector<uint32_t> &col
                 }
 
                 node.count = static_cast<uint32_t>(new_indecies.size()) - node.start;
-
-               
-
             }
-
         }
         else
         {
@@ -501,8 +493,6 @@ std::string RvmParser::generate_glb_from_current_root(std::vector<uint32_t> &col
         buffer_size = buffer_size + (new_indecies.size() * sizeof(uint32_t)) + (new_positions.size() * sizeof(float));
         buffer.data.insert(buffer.data.end(), reinterpret_cast<char *>(new_indecies.data()), reinterpret_cast<char *>(new_indecies.data()) + (new_indecies.size() * sizeof(uint32_t)));
         buffer.data.insert(buffer.data.end(), reinterpret_cast<char *>(new_positions.data()), reinterpret_cast<char *>(new_positions.data()) + new_positions.size() * sizeof(float));
-
-   
 
         // --------------------------------------------------------
         // next part collects and add draw_ranges for this node

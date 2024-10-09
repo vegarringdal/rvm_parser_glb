@@ -14,6 +14,7 @@ int main(int argc, char **argv)
     float meshopt_target_error;
     bool remove_elements_without_primitives;
     bool remove_duplicate_positions;
+    bool is_dry_run;
 
     auto parser = argumentum::argument_parser{};
     auto params = parser.params();
@@ -28,6 +29,11 @@ int main(int argc, char **argv)
         .nargs(1)
         .absent("./exports/")
         .help("Output folder, will create folder if it does not exist. Default is ./exports/");
+
+    params.add_parameter(is_dry_run, "--dry-run", "-x")
+        .nargs(1)
+        .absent(0)
+        .help("Level to split into files. To enable use -x 1");
 
     params.add_parameter(export_level, "--level", "-l")
         .nargs(1)
@@ -81,6 +87,7 @@ int main(int argc, char **argv)
         remove_duplicate_positions_precision, 
         tolerance,
         meshopt_threshold,
-        meshopt_target_error
+        meshopt_target_error,
+        is_dry_run
     );
 }

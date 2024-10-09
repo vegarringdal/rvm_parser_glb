@@ -54,7 +54,8 @@ int RvmParser::read_file(
     uint8_t remove_duplicate_positions_precision,
     float tolerance,
     float meshopt_threshold,
-    float meshopt_target_error)
+    float meshopt_target_error,
+    bool is_dry_run)
 {
     p_export_level = export_level;
     p_remove_elements_without_primitives = remove_elements_without_primitives;
@@ -64,6 +65,7 @@ int RvmParser::read_file(
     p_tolerance = tolerance;
     p_meshopt_threshold = meshopt_threshold;
     p_meshopt_target_error = meshopt_target_error;
+    p_is_dry_run = is_dry_run;
 
     auto start = std::chrono::high_resolution_clock::now();
 
@@ -550,6 +552,15 @@ int RvmParser::start_reading()
 
                 std::cout << "Generating root: " << current_root_name << ", MD5:" << root_md5 << '\n';
                 auto file_name = generate_glb_from_current_root(colors);
+
+                if(p_is_dry_run == true){
+                    FileMeta file_meta;
+                    file_meta.md5 = root_md5;
+                    file_meta.root_name = current_root_name;
+                    file_meta.file_name = "NA - dry run";
+                    p_filemeta_map.insert_or_assign(current_root_name, file_meta);
+                    break;
+                }
 
                 if (file_name.length() > 0)
                 {
