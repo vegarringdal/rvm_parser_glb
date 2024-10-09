@@ -373,7 +373,7 @@ std::string RvmParser::generate_glb_from_current_root(std::vector<uint32_t> &col
                     auto x2 = temp_positions[x + 1];
                     auto x3 = temp_positions[x + 2];
                     std::string position_id = generate_position_id(x1, x2, x3, p_remove_duplicate_positions_precision);
-
+                   
                     auto search = position_index_map.find(position_id);
                     if (search != position_index_map.end())
                     {
@@ -390,7 +390,7 @@ std::string RvmParser::generate_glb_from_current_root(std::vector<uint32_t> &col
                     }
                 }
 
-                node.count = static_cast<uint32_t>(new_indecies.size()) - node.start;
+                node.count = static_cast<uint32_t>(new_indecies.size()) - node.start;       
             }
         }
         else
@@ -504,7 +504,7 @@ std::string RvmParser::generate_glb_from_current_root(std::vector<uint32_t> &col
             uint32_t id = pair.first;
             const MetaNode &node = pair.second;
 
-            if (color != node.color_with_alpha || node.primitives.size() == 0)
+            if (color != node.color_with_alpha || node.primitives.size() == 0 || node.count == 0)
             {
                 continue;
             }
