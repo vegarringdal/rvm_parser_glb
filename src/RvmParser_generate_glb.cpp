@@ -112,6 +112,68 @@ std::string RvmParser::generate_glb_from_current_root(std::vector<uint32_t> &col
             continue;
         }
 
+
+        // --------------------------------------------------------
+        // next part will remove all elements without primititives
+        // --------------------------------------------------------
+
+        // --------------------------------------------------------
+        // next part will remove all elements without primititives
+        // --------------------------------------------------------
+
+        if (p_remove_elements_without_primitives)
+        {
+
+            auto removing_elements_without_primitives = true;
+            auto cleanup_count = 0;
+            while (removing_elements_without_primitives)
+            {
+                std::set<uint32_t> parents;
+                for (auto &pair : p_nodes)
+                {
+                    MetaNode &node = pair.second;
+                    parents.insert(node.parent_id);
+                }
+
+                auto count = 0;
+                std::vector<uint32_t> to_delete;
+                for (auto &pair : p_nodes)
+                {
+
+                    uint32_t id = pair.first;
+                    MetaNode &node = pair.second;
+
+                    auto c = 0;
+                    for (auto &tri : node.primitives)
+                    {
+                        c += tri.triangulation->triangles_n * 3;
+                        c += tri.triangulation->vertices_n * 3;
+                    }
+
+                    auto search = parents.find(id);
+                    if (c == 0 && search == parents.end())
+                    {
+
+                        to_delete.push_back(id);
+                        count++;
+                        cleanup_count++;
+                    }
+                }
+
+                for (auto id : to_delete)
+                {
+                    p_nodes.erase(id);
+                }
+
+                if (count == 0)
+                {
+                    removing_elements_without_primitives = false;
+                }
+            }
+
+                std::cout << "Removed empty elements: " << cleanup_count << "\n";
+        }
+
         // --------------------------------------------------------
         // next part will generate indices/position arrays
         // and collect bounding boxes for each merged mesh
@@ -348,57 +410,6 @@ std::string RvmParser::generate_glb_from_current_root(std::vector<uint32_t> &col
 
         free(indicies);
         free(positions);
-
-
-        // --------------------------------------------------------
-        // next part will remove all elements without primititives
-        // --------------------------------------------------------
-
-        if (p_remove_elements_without_primitives)
-        {
-
-            auto removing_elements_without_primitives = true;
-            auto cleanup_count = 0;
-            while (removing_elements_without_primitives)
-            {
-                std::set<uint32_t> parents;
-                for (auto &pair : p_nodes)
-                {
-                    MetaNode &node = pair.second;
-                    parents.insert(node.parent_id);
-                }
-
-                auto count = 0;
-                std::vector<uint32_t> to_delete;
-                for (auto &pair : p_nodes)
-                {
-
-                    uint32_t id = pair.first;
-                    MetaNode &node = pair.second;                  
-
-                    auto search = parents.find(id);
-                    if (node.count == 0 && search == parents.end())
-                    {
-
-                        to_delete.push_back(id);
-                        count++;
-                        cleanup_count++;
-                    }
-                }
-
-                for (auto id : to_delete)
-                {
-                    p_nodes.erase(id);
-                }
-
-                if (count == 0)
-                {
-                    removing_elements_without_primitives = false;
-                }
-            }
-
-            std::cout << "Removed empty elements: " << cleanup_count << "\n";
-        }
 
         // --------------------------------------------------------
         // init tinyglft we need to support indecies and positions
