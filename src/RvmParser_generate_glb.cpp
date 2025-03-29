@@ -10,6 +10,20 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION // todo, move, prob should not be loaded more than 1 time ?// todo, move, prob should not be loaded more than 1 time ?
 #include "tinygltf/tiny_gltf.h"
 
+
+void update_bbox(bbox3 &b, float min_x, float min_y, float min_z, float max_x, float max_y, float max_z)
+{
+    // Update min values if they are not set or the new value is smaller
+    if (!std::isnan(min_x) && min_x < b.min_x) b.min_x = min_x;
+    if (!std::isnan(min_y) && min_y < b.min_y) b.min_y = min_y;
+    if (!std::isnan(min_z) && min_z < b.min_z) b.min_z = min_z;
+
+    // Update max values if they are not set or the new value is larger
+    if (!std::isnan(max_x) && max_x > b.max_x) b.max_x = max_x;
+    if (!std::isnan(max_y) && max_y > b.max_y) b.max_y = max_y;
+    if (!std::isnan(max_z) && max_z > b.max_z) b.max_z = max_z;
+}
+
 void rotate_z_up_to_y_up(float &x, float &y, float &z)
 {
     float new_y = z;
@@ -44,7 +58,7 @@ std::string generate_position_id(float x1, float x2, float x3, int precision = 3
     return position_id;
 }
 
-std::string RvmParser::generate_glb_from_current_root(std::vector<uint32_t> &colors)
+std::string RvmParser::generate_glb_from_current_root(std::vector<uint32_t> &colors, bbox3 &bbox)
 {
 
     tinygltf::TinyGLTF gltf;
@@ -473,6 +487,10 @@ std::string RvmParser::generate_glb_from_current_root(std::vector<uint32_t> &col
         accessor2.minValues = {min_x, min_y, min_z};
         accessor2.maxValues = {max_x, max_y, max_z};
         accessor_count += 1;
+
+        update_bbox(bbox, min_x, min_y, min_z, max_x, max_y, max_z);
+
+        
 
         // Build the mesh primitive and add it to the mesh
         primitive.indices = index_count;                    // The index of the accessor for the vertex indices

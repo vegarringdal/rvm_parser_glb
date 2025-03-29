@@ -45,6 +45,8 @@ std::string RvmParser::get_file_name()
     return s;
 }
 
+
+
 int RvmParser::read_file(
     std::string filename,
     std::string output_path,
@@ -551,13 +553,21 @@ int RvmParser::start_reading()
                 std::string root_md5 = p_md5.hexdigest();
 
                 std::cout << "Generating root: " << current_root_name << ", MD5:" << root_md5 << '\n';
-                auto file_name = generate_glb_from_current_root(colors);
+
+               
+                
+                bbox3 tempBox = {};
+
+            
+
+                auto file_name = generate_glb_from_current_root(colors, tempBox);
 
                 if(p_is_dry_run == true){
                     FileMeta file_meta;
                     file_meta.md5 = root_md5;
                     file_meta.root_name = current_root_name;
                     file_meta.file_name = "NA - dry run";
+                    file_meta.bbox = std::move(tempBox);
                     p_filemeta_map.insert_or_assign(current_root_name, file_meta);
                     break;
                 }
@@ -569,6 +579,7 @@ int RvmParser::start_reading()
                     file_meta.md5 = root_md5;
                     file_meta.root_name = current_root_name;
                     file_meta.file_name = file_name;
+                    file_meta.bbox = std::move(tempBox);
 
                     if (auto search = p_filemeta_map.find(current_root_name); search != p_filemeta_map.end())
                     {

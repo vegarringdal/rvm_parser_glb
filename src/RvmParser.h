@@ -9,6 +9,7 @@
 #include "Geometry.h"
 #include "ColorStore.h"
 #include "md5.h"
+#include <cfloat> // for FLT_MAX, -FLT_MAX
 
 void rotate_z_up_to_y_up(float &x, float &y, float &z);
 
@@ -67,11 +68,25 @@ struct ColrBlock
     float color[3];
 };
 
+struct bbox3
+{
+    float max_x;
+    float max_y;
+    float max_z;
+    float min_x;
+    float min_y;
+    float min_z;
+    bbox3() : min_x(FLT_MAX), min_y(FLT_MAX), min_z(FLT_MAX),
+             max_x(-FLT_MAX), max_y(-FLT_MAX), max_z(-FLT_MAX) {}
+};
+
 struct FileMeta
 {
     std::string root_name;
     std::string file_name;
     std::string md5;
+    bbox3 bbox;
+
     // might want some more here later
     // bbox ?
     // indcies/vertex size ?
@@ -196,6 +211,6 @@ private:
     uint32_t read_next_chunk();
 
     std::string get_file_name();
-    std::string generate_glb_from_current_root(std::vector<uint32_t> &colors);
+    std::string generate_glb_from_current_root(std::vector<uint32_t> &colors, bbox3 &bbox);
     void generate_status_file();
 };

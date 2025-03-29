@@ -27,12 +27,18 @@ void RvmParser::generate_status_file()
     for (const auto &pair : p_filemeta_map)
     {
         auto key = pair.first;
-        auto &node = pair.second;
+        auto &node = pair.second;       
 
         Value nodeObject(kObjectType);
         nodeObject.AddMember("root_name", Value().SetString(node.root_name.c_str(), node.root_name.length(), allocator), allocator);
         nodeObject.AddMember("md5", Value().SetString(node.md5.c_str(), node.md5.length(), allocator), allocator);
         nodeObject.AddMember("file_name", Value().SetString(node.file_name.c_str(), node.file_name.length(), allocator), allocator);
+        nodeObject.AddMember("min_x", Value().SetFloat(node.bbox.min_x), allocator);
+        nodeObject.AddMember("min_y", Value().SetFloat(node.bbox.min_y), allocator);
+        nodeObject.AddMember("min_z", Value().SetFloat(node.bbox.min_z), allocator);
+        nodeObject.AddMember("max_x", Value().SetFloat(node.bbox.max_x), allocator);
+        nodeObject.AddMember("max_y", Value().SetFloat(node.bbox.max_y), allocator);
+        nodeObject.AddMember("max_z", Value().SetFloat(node.bbox.max_z), allocator);
         models.PushBack(nodeObject, allocator);
     }
     document.AddMember("models", models, allocator);
