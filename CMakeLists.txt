@@ -33,9 +33,11 @@ add_executable(
     ./src/TriangulationFactory.cpp
 )
 
+
 target_link_libraries(rvm_parser 
     libtess2 
     MESHOPT
     Argumentum::headers
-    -static
+    -static-libgcc
+    -static-libstdc++
     )
