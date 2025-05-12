@@ -452,8 +452,8 @@ std::string RvmParser::generate_glb_from_current_root(std::vector<uint32_t> &col
         }
 
         mat.pbrMetallicRoughness.baseColorFactor = base_color;
-        mat.pbrMetallicRoughness.metallicFactor = 0.5;
-        mat.pbrMetallicRoughness.roughnessFactor = 0.5;
+        mat.pbrMetallicRoughness.metallicFactor = 0.0;
+        mat.pbrMetallicRoughness.roughnessFactor = 1.0;
 
         mat.doubleSided = true;
 
