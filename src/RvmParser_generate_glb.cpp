@@ -316,7 +316,7 @@ std::string RvmParser::generate_glb_from_current_root(std::vector<uint32_t> &col
         // next part will clean up position if enabled or use full set
         // --------------------------------------------------------
 
-        std::unordered_map<std::string, uint32_t> position_index_map;
+     
         std::vector<uint32_t> new_indecies;
         std::vector<float> new_positions;
         uint32_t index_counter = 0;
@@ -371,6 +371,7 @@ std::string RvmParser::generate_glb_from_current_root(std::vector<uint32_t> &col
                 float target_error = p_meshopt_target_error;
                 float lod_error = 0.f;
                 std::vector<unsigned int> lod(temp_indecies.size());
+                std::unordered_map<std::string, uint32_t> position_index_map;
 
                 lod.resize(
                     meshopt_simplify(

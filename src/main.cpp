@@ -48,7 +48,7 @@ int main(int argc, char **argv)
     params.add_parameter(remove_duplicate_positions, "--cleanup-position", "-d")
         .nargs(1)
         .absent(1)
-        .help("Removes duplicate positions. This is enabled by default. If you want to calculate vertex normals later, then you want this set to 0, to disable use -d 0");
+        .help("Removes duplicate positions per item. This is enabled by default. If you want to calculate vertex normals later, then you want this set to 0, to disable use -d 0");
 
     params.add_parameter(remove_duplicate_positions_precision, "--cleanup-precision", "-p")
         .nargs(1)
