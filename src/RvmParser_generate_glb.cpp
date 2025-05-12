@@ -10,18 +10,23 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION // todo, move, prob should not be loaded more than 1 time ?// todo, move, prob should not be loaded more than 1 time ?
 #include "tinygltf/tiny_gltf.h"
 
-
 void update_bbox(bbox3 &b, float min_x, float min_y, float min_z, float max_x, float max_y, float max_z)
 {
     // Update min values if they are not set or the new value is smaller
-    if (!std::isnan(min_x) && min_x < b.min_x) b.min_x = min_x;
-    if (!std::isnan(min_y) && min_y < b.min_y) b.min_y = min_y;
-    if (!std::isnan(min_z) && min_z < b.min_z) b.min_z = min_z;
+    if (!std::isnan(min_x) && min_x < b.min_x)
+        b.min_x = min_x;
+    if (!std::isnan(min_y) && min_y < b.min_y)
+        b.min_y = min_y;
+    if (!std::isnan(min_z) && min_z < b.min_z)
+        b.min_z = min_z;
 
     // Update max values if they are not set or the new value is larger
-    if (!std::isnan(max_x) && max_x > b.max_x) b.max_x = max_x;
-    if (!std::isnan(max_y) && max_y > b.max_y) b.max_y = max_y;
-    if (!std::isnan(max_z) && max_z > b.max_z) b.max_z = max_z;
+    if (!std::isnan(max_x) && max_x > b.max_x)
+        b.max_x = max_x;
+    if (!std::isnan(max_y) && max_y > b.max_y)
+        b.max_y = max_y;
+    if (!std::isnan(max_z) && max_z > b.max_z)
+        b.max_z = max_z;
 }
 
 void rotate_z_up_to_y_up(float &x, float &y, float &z)
@@ -58,6 +63,96 @@ std::string generate_position_id(float x1, float x2, float x3, int precision = 3
     return position_id;
 }
 
+std::vector<uint32_t> cleanDegenerateTriangles(
+    const uint32_t *indices,
+    size_t index_count,
+    const float *vertex_positions,
+    size_t vertex_count,
+    bool logErrors = false)
+{
+    std::vector<uint32_t> cleaned;
+    const float epsilon = 1e-8f;
+
+    uint32_t count_degenerate_triangle_duplicate = 0;
+    uint32_t count_degenerate_triangle_overlapping = 0;
+    uint32_t count_degenerate_triangle_zero = 0;
+
+    auto getPosition = [&](uint32_t i) -> std::array<float, 3>
+    {
+        return {
+            vertex_positions[i * 3],
+            vertex_positions[i * 3 + 1],
+            vertex_positions[i * 3 + 2]};
+    };
+
+    auto cross = [](const std::array<float, 3> &a, const std::array<float, 3> &b) -> std::array<float, 3>
+    {
+        return {
+            a[1] * b[2] - a[2] * b[1],
+            a[2] * b[0] - a[0] * b[2],
+            a[0] * b[1] - a[1] * b[0]};
+    };
+
+    auto length = [](const std::array<float, 3> &v) -> float
+    {
+        return std::sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+    };
+
+    for (size_t i = 0; i + 2 < index_count; i += 3)
+    {
+        uint32_t a = indices[i];
+        uint32_t b = indices[i + 1];
+        uint32_t c = indices[i + 2];
+
+        if (a == b || b == c || c == a)
+        {
+            if (logErrors)
+                count_degenerate_triangle_duplicate = count_degenerate_triangle_duplicate + 1;
+            continue;
+        }
+
+        auto p0 = getPosition(a);
+        auto p1 = getPosition(b);
+        auto p2 = getPosition(c);
+
+        bool samePosition =
+            (p0 == p1) || (p1 == p2) || (p2 == p0);
+
+        if (samePosition)
+        {
+            if (logErrors)
+                count_degenerate_triangle_overlapping = count_degenerate_triangle_overlapping + 1;
+            continue;
+        }
+
+        std::array<float, 3> ab = {p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]};
+        std::array<float, 3> ac = {p2[0] - p0[0], p2[1] - p0[1], p2[2] - p0[2]};
+        auto normal = cross(ab, ac);
+        float area = 0.5f * length(normal);
+
+        if (area < epsilon)
+        {
+            if (logErrors)
+                count_degenerate_triangle_zero = count_degenerate_triangle_zero + 1;
+            continue;
+        }
+
+        cleaned.push_back(a);
+        cleaned.push_back(b);
+        cleaned.push_back(c);
+    }
+
+    if (logErrors && (count_degenerate_triangle_duplicate || count_degenerate_triangle_overlapping || count_degenerate_triangle_zero))
+    {
+        std::cerr << "Degenerate triangle count:\n";
+        std::cerr << "Duplicates:" << count_degenerate_triangle_duplicate << "\n";
+        std::cerr << "Overlapping:" << count_degenerate_triangle_overlapping << "\n";
+        std::cerr << "Zero:" << count_degenerate_triangle_zero << "\n";
+    }
+
+    return cleaned;
+}
+
 std::string RvmParser::generate_glb_from_current_root(std::vector<uint32_t> &colors, bbox3 &bbox)
 {
 
@@ -83,8 +178,6 @@ std::string RvmParser::generate_glb_from_current_root(std::vector<uint32_t> &col
     uint32_t node_count = 0;
     uint32_t accessor_count = 0;
     uint32_t index_count = 0;
-
-   
 
     // --------------------------------------------------------
     // loop colors and generate file with 1 merged mesh per color
@@ -125,7 +218,6 @@ std::string RvmParser::generate_glb_from_current_root(std::vector<uint32_t> &col
             // if we dont have any primitives, we skip it
             continue;
         }
-
 
         // --------------------------------------------------------
         // next part will remove all elements without primititives
@@ -185,7 +277,7 @@ std::string RvmParser::generate_glb_from_current_root(std::vector<uint32_t> &col
                 }
             }
 
-                std::cout << "Removed empty elements: " << cleanup_count << "\n";
+            std::cout << "Removed empty elements: " << cleanup_count << "\n";
         }
 
         // --------------------------------------------------------
@@ -316,7 +408,6 @@ std::string RvmParser::generate_glb_from_current_root(std::vector<uint32_t> &col
         // next part will clean up position if enabled or use full set
         // --------------------------------------------------------
 
-     
         std::vector<uint32_t> new_indecies;
         std::vector<float> new_positions;
         uint32_t index_counter = 0;
@@ -388,14 +479,16 @@ std::string RvmParser::generate_glb_from_current_root(std::vector<uint32_t> &col
 
                 node.start = static_cast<uint32_t>(new_indecies.size());
 
-                for (auto i = 0; i < lod.size(); i++)
+                auto cleanedLod = cleanDegenerateTriangles(&lod[0], lod.size(), &temp_positions[0], temp_positions.size() / 3);
+
+                for (auto i = 0; i < cleanedLod.size(); i++)
                 {
-                    auto x = lod[i] * 3;
+                    auto x = cleanedLod[i] * 3;
                     auto x1 = temp_positions[x];
                     auto x2 = temp_positions[x + 1];
                     auto x3 = temp_positions[x + 2];
                     std::string position_id = generate_position_id(x1, x2, x3, p_remove_duplicate_positions_precision);
-                   
+
                     auto search = position_index_map.find(position_id);
                     if (search != position_index_map.end())
                     {
@@ -412,7 +505,7 @@ std::string RvmParser::generate_glb_from_current_root(std::vector<uint32_t> &col
                     }
                 }
 
-                node.count = static_cast<uint32_t>(new_indecies.size()) - node.start;       
+                node.count = static_cast<uint32_t>(new_indecies.size()) - node.start;
             }
         }
         else
@@ -490,8 +583,6 @@ std::string RvmParser::generate_glb_from_current_root(std::vector<uint32_t> &col
         accessor_count += 1;
 
         update_bbox(bbox, min_x, min_y, min_z, max_x, max_y, max_z);
-
-        
 
         // Build the mesh primitive and add it to the mesh
         primitive.indices = index_count;                    // The index of the accessor for the vertex indices
