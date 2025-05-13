@@ -91,7 +91,9 @@
         "codecvt": "cpp",
         "valarray": "cpp",
         "filesystem": "cpp",
-        "text_encoding": "cpp"
+        "text_encoding": "cpp",
+        "queue": "cpp",
+        "stack": "cpp"
     },
     "cmake.debugConfig": {
         "args": [
